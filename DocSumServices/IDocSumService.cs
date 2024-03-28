@@ -12,5 +12,6 @@ namespace DocSumServices
         /*public Task<List<conversations>> GetConversations();*/
 
         public string ProcessDocument(byte[] documentData, string fileName);
+        public List<string> ParseDocument(string filePath);
     }
 }
