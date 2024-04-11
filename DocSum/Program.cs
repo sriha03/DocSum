@@ -9,33 +9,38 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IDocSumService, DocSumService>();
+builder.Services.AddSwaggerGen();/*
+builder.Services.AddScoped<IDocSumService, DocSumService>();*/
 builder.Services.AddScoped<IDocSumRepo,DocSumRepo>();
 
 
 var configuration1 = builder.Configuration;
 
 // Add services to the container.
-builder.Services.AddSingleton<CosmosClient>((provider) =>
+builder.Services.AddScoped<IDocSumService>((provider) =>
 {
-    var endpointUri = configuration1["CosmosDbSettings:EndpointUri"];
-    var primaryKey = configuration1["CosmosDbSettings:PrimaryKey"];
-    var databaseName = configuration1["CosmosDbSettings:DatabaseName"];
-    var cosmosClientOptions = new CosmosClientOptions
-    {
-        ApplicationName = databaseName
-    };
-    var loggerFactory = LoggerFactory.Create(builder =>
-    {
-        builder.AddConsole();
-    });
-    var cosmosClient = new CosmosClient(endpointUri, primaryKey, cosmosClientOptions);
-    cosmosClient.ClientOptions.ConnectionMode = ConnectionMode.Direct;
-    return cosmosClient;
+    var configuration = provider.GetRequiredService<IConfiguration>();
+    var textAnalyticsEndpoint = configuration["TextAnalytics:Endpoint"];
+    var textAnalyticsKey = configuration["TextAnalytics:Key"];
+    var docSumRepo = provider.GetRequiredService<IDocSumRepo>();
+    return new DocSumService(docSumRepo, textAnalyticsEndpoint, textAnalyticsKey);
 });
 
 
+builder.Services.AddScoped<IDocSumService>(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+
+    // Get the configuration values for text analytics
+    var textAnalyticsEndpoint = configuration["TextAnalytics:Endpoint"];
+    var textAnalyticsKey = configuration["TextAnalytics:Key"];
+
+    // Resolve the IDocSumRepo dependency
+    var docSumRepo = provider.GetRequiredService<IDocSumRepo>();
+
+    // Create and return the DocSumService instance with resolved dependencies
+    return new DocSumService(docSumRepo, textAnalyticsEndpoint, textAnalyticsKey);
+});
 
 
 

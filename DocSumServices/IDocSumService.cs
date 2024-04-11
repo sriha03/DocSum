@@ -13,5 +13,8 @@ namespace DocSumServices
 
         public string ProcessDocument(byte[] documentData, string fileName);
         public List<string> ParseDocument(string filePath);
+
+        public string SummarizeDocument(string filePath);
+
     }
 }

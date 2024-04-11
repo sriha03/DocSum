@@ -20,18 +20,18 @@ namespace DocSumController.Controllers
         {
             if (file == null || file.Length == 0)
                 return BadRequest("No file uploaded");
-            var filePath = "";
+            var summary = "";
             using (var memoryStream = new MemoryStream())
             {
                 file.CopyTo(memoryStream);
                 var fileBytes = memoryStream.ToArray();
                 var fileName = file.FileName;
 
-                filePath=_docSumService.ProcessDocument(fileBytes, fileName);
+                summary =_docSumService.ProcessDocument(fileBytes, fileName);
                 
             }
 
-            return Ok(_docSumService.ParseDocument(filePath));
+            return Ok(summary);
         }
     }
 }
