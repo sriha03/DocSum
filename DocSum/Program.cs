@@ -46,6 +46,16 @@ builder.Services.AddScoped<IDocSumService>(provider =>
 
 
 var app = builder.Build();
+// Configure CORS
+app.UseCors(builder =>
+{
+    builder.WithOrigins("https://localhost:5173") // Update with your frontend origin URL
+           .AllowAnyHeader()
+           .AllowAnyMethod();
+});
+
+
+
 
 
 
