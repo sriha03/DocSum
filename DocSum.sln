@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.8.34525.116
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocSum", "DocSum\DocSum.csproj", "{310280CB-C819-4C93-B279-15BCE34B4846}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C756C71-746E-4C26-8444-6D0096EB5CDB} = {9C756C71-746E-4C26-8444-6D0096EB5CDB}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocSumRepository", "DocSumRepo\DocSumRepository.csproj", "{A54EE8BE-4049-476F-A300-42B8F1DC05BA}"
 EndProject
