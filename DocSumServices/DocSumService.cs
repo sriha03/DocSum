@@ -82,8 +82,8 @@ namespace DocSumServices
             _docSumRepo = docSumRepo;
 
             // Initialize Text Analytics client
-            var credential = new AzureKeyCredential(textAnalyticsKey);
-            var endpoint = new Uri(textAnalyticsEndpoint);
+            var credential = new AzureKeyCredential("ef1d66e6592f4cac8079fbcef9c0bd4b");
+            var endpoint = new Uri("https://textanalyticssum.cognitiveservices.azure.com/");
             _textAnalyticsClient = new TextAnalyticsClient(endpoint, credential);
         }
 

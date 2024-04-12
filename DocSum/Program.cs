@@ -20,8 +20,8 @@ var configuration1 = builder.Configuration;
 builder.Services.AddScoped<IDocSumService>((provider) =>
 {
     var configuration = provider.GetRequiredService<IConfiguration>();
-    var textAnalyticsEndpoint = configuration["TextAnalytics:Endpoint"];
-    var textAnalyticsKey = configuration["TextAnalytics:Key"];
+    var textAnalyticsEndpoint = configuration["https://textanalyticssum.cognitiveservices.azure.com/"];
+    var textAnalyticsKey = configuration["ef1d66e6592f4cac8079fbcef9c0bd4b"];
     var docSumRepo = provider.GetRequiredService<IDocSumRepo>();
     return new DocSumService(docSumRepo, textAnalyticsEndpoint, textAnalyticsKey);
 });
@@ -32,8 +32,8 @@ builder.Services.AddScoped<IDocSumService>(provider =>
     var configuration = provider.GetRequiredService<IConfiguration>();
 
     // Get the configuration values for text analytics
-    var textAnalyticsEndpoint = configuration["TextAnalytics:Endpoint"];
-    var textAnalyticsKey = configuration["TextAnalytics:Key"];
+    var textAnalyticsEndpoint = configuration["https://textanalyticssum.cognitiveservices.azure.com/"];
+    var textAnalyticsKey = configuration["ef1d66e6592f4cac8079fbcef9c0bd4b"];
 
     // Resolve the IDocSumRepo dependency
     var docSumRepo = provider.GetRequiredService<IDocSumRepo>();
