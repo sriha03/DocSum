@@ -107,14 +107,15 @@ namespace DocSumServices
             // Concatenate text from all pages
             string documentText = string.Join(" ", pages);
 
-            // Extract key phrases using Text Analytics
-            var response = _textAnalyticsClient.ExtractKeyPhrases(documentText);
+            /* // Extract key phrases using Text Analytics
+             var response = _textAnalyticsClient.ExtractKeyPhrases(documentText);
 
-            // Build summary from key phrases
-            List<string> keyPhrases = new List<string>(response.Value);
-            string summary = string.Join(", ", keyPhrases);
+             // Build summary from key phrases
+             List<string> keyPhrases = new List<string>(response.Value);
+             string summary = string.Join(", ", keyPhrases);
 
-            return summary;
+             return summary;*/
+            return documentText;
         }
 
         public List<string> ParseDocument(string filePath)
