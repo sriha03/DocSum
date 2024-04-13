@@ -11,10 +11,10 @@ namespace DocSumServices
     {
         /*public Task<List<conversations>> GetConversations();*/
 
-        public string ProcessDocument(byte[] documentData, string fileName);
-        public List<string> ParseDocument(string filePath);
+         Task<List<string>> ProcessDocument(byte[] documentData, string fileName) ;
+        Task<List<string>> ParseDocument(string filePath);
 
-        public string SummarizeDocument(string filePath);
+        Task<List<string>> SummarizeDocument(string filePath);
 
     }
 }
