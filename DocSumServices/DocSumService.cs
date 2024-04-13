@@ -60,6 +60,10 @@ namespace DocSumServices
     }
 }
 */
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Azure;
 
 using DocSumRepository;
 using common.model;
@@ -69,6 +73,7 @@ using iText.Kernel.Pdf.Canvas.Parser.Listener;
 using System.Collections.Generic;
 using Azure;
 using Azure.AI.TextAnalytics;
+
 
 namespace DocSumServices
 {
@@ -81,43 +86,87 @@ namespace DocSumServices
         {
             _docSumRepo = docSumRepo;
 
-            // Initialize Text Analytics client
-            var credential = new AzureKeyCredential("ef1d66e6592f4cac8079fbcef9c0bd4b");
-            var endpoint = new Uri("https://textanalyticssum.cognitiveservices.azure.com/");
-            _textAnalyticsClient = new TextAnalyticsClient(endpoint, credential);
         }
 
-        public string ProcessDocument(byte[] documentData, string fileName)
+        public async Task<List<string>> ProcessDocument(byte[] documentData, string fileName)
         {
             // Here, you can implement logic to summarize the document
             // For simplicity, we'll just save the document as it is
             var filePath = _docSumRepo.SaveDocument(documentData, fileName);
 
             // Parse and summarize the document
-            var summary = SummarizeDocument(filePath);
+            List<string> summary;
+            summary = await SummarizeDocument(filePath);
 
             return summary;
         }
 
-        public string SummarizeDocument(string filePath)
+        public async Task<List<string>> SummarizeDocument(string filePath)
         {
+            var credential = new AzureKeyCredential("ef1d66e6592f4cac8079fbcef9c0bd4b");
+            var endpoint = new Uri("https://textanalyticssum.cognitiveservices.azure.com/");
+            TextAnalyticsClient _textAnalyticsClient = new(endpoint, credential);
             // Parse the document
-            List<string> pages = ParseDocument(filePath);
+            List<string> pages =await ParseDocument(filePath);
 
             // Concatenate text from all pages
             string documentText = string.Join(" ", pages);
 
             // Extract key phrases using Text Analytics
-            var response = _textAnalyticsClient.ExtractKeyPhrases(documentText);
+            // var response = _textAnalyticsClient.ExtractKeyPhrases(documentText);
 
             // Build summary from key phrases
-            List<string> keyPhrases = new List<string>(response.Value);
-            string summary = string.Join(", ", keyPhrases);
+            //  List<string> keyPhrases = new List<string>(response.Value);
+            //  string summary = string.Join(", ", keyPhrases);
+            List<string> batchedDocuments = new()
+            {
+                documentText
+            };
+            List<string> summaries = new List<string>();
+            // Perform the text analysis operation.
+            // View the operation results.
 
-            return summary;
+            // Perform the text analysis operation.
+            AbstractiveSummarizeOperation operation = _textAnalyticsClient.AbstractiveSummarize(WaitUntil.Completed, batchedDocuments);
+            await foreach (AbstractiveSummarizeResultCollection documentsInPage in operation.Value)
+            {
+                Console.WriteLine($"Abstractive Summarize, model version: \"{documentsInPage.ModelVersion}\"");
+                Console.WriteLine();
+
+                foreach (AbstractiveSummarizeResult documentResult in documentsInPage)
+                {
+                    if (documentResult.HasError)
+                    {
+                        Console.WriteLine($"  Error!");
+                        Console.WriteLine($"  Document error code: {documentResult.Error.ErrorCode}");
+                        Console.WriteLine($"  Message: {documentResult.Error.Message}");
+                        continue;
+                    }
+
+                    Console.WriteLine($"  Produced the following abstractive summaries:");
+                    Console.WriteLine();
+
+                    foreach (AbstractiveSummary summary in documentResult.Summaries)
+                    {
+                        Console.WriteLine($"  Text: {summary.Text.Replace("\n", " ")}");
+                        Console.WriteLine($"  Contexts:");
+                        summaries.Add(summary.Text.Replace("\n", " "));
+
+                        foreach (AbstractiveSummaryContext context in summary.Contexts)
+                        {
+                            Console.WriteLine($"    Offset: {context.Offset}");
+                            Console.WriteLine($"    Length: {context.Length}");
+                        }
+
+                        Console.WriteLine();
+                    }
+                }
+            }
+            return summaries;
         }
 
-        public List<string> ParseDocument(string filePath)
+
+        public async Task<List<string>> ParseDocument(string filePath)
         {
             // Initialize PDF document parser
             PdfReader pdfReader = new PdfReader(filePath);

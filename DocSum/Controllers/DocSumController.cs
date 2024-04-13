@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using DocSumServices;
+using sun.swing;
 
 namespace DocSumController.Controllers
 {
@@ -16,22 +17,23 @@ namespace DocSumController.Controllers
         }
 
         [HttpPost("uploadpdf")]
-        public ActionResult<string> UploadDocument(IFormFile file)
+        public async Task<List<string>> uploadDocument(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest("No file uploaded");
-            var summary = "";
+            //  if (file == null || file.Length == 0)
+            // return BadRequest("No file uploaded");
+            List<string> summary;
             using (var memoryStream = new MemoryStream())
             {
                 file.CopyTo(memoryStream);
                 var fileBytes = memoryStream.ToArray();
                 var fileName = file.FileName;
 
-                summary =_docSumService.ProcessDocument(fileBytes, fileName);
-                
-            }
+                //  summary =_docSumService.ProcessDocument(fileBytes, fileName);
+                List<string> summar = await _docSumService.ProcessDocument(fileBytes, fileName);
 
-            return Ok(summary);
+
+                return summar;
+            }
         }
     }
 }
