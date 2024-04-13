@@ -162,6 +162,8 @@ namespace DocSumServices
                     }
                 }
             }
+            await _docSumRepo.StoreConversation(pages, summaries,filePath);
+
             return summaries;
         }
 

@@ -1,5 +1,7 @@
-﻿using common.model;
+﻿using com.sun.jndi.dns;
+using common.model;
 using Microsoft.Azure.Cosmos;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,12 +15,33 @@ namespace DocSumRepository
 {
     public class DocSumRepo : IDocSumRepo
     {
-
+        private readonly CosmosClient _cosmosClient;
+        private const string DatabaseId = "DocSum";
+        private const string ContainerId = "Conversation";
         private readonly string _storagePath;
-
-        public DocSumRepo()
+     
+        public DocSumRepo(CosmosClient cosmosClient)
         {
+            _cosmosClient = cosmosClient;
             _storagePath = "\\uploads";
+        }
+        public async Task<List<ConversationModel>> GetConversations()
+        {
+            var container = _cosmosClient.GetContainer(DatabaseId, ContainerId);
+
+            var query = "SELECT * FROM c";
+            var queryDefinition = new QueryDefinition(query);
+            var conversations = new List<ConversationModel>();
+
+            var resultSetIterator = container.GetItemQueryIterator<ConversationModel>(queryDefinition);
+
+            while (resultSetIterator.HasMoreResults)
+            {
+                var currentResultSet = await resultSetIterator.ReadNextAsync();
+                conversations.AddRange(currentResultSet);
+            }
+
+            return conversations;
         }
 
         public string SaveDocument(byte[] documentData, string fileName)
@@ -32,36 +55,34 @@ namespace DocSumRepository
             File.ReadAllBytes(filePath);
         }
 
-        /*
-        private readonly CosmosClient _cosmosclient;
-        private const string DatabaseId = "StudentDB";
-        private const string ContainerId = "Student";
-        public DocSumRepo(CosmosClient cosmosClient)
+
+        public async Task StoreConversation(List<string> pages, List<string> summaries,string filePath)
         {
-            _cosmosclient = cosmosClient;
-        }
-        public async Task<List<conversations>> GetConversations()
-        {
-            var container = _cosmosclient.GetContainer(DatabaseId, ContainerId);
+            var container = _cosmosClient.GetContainer(DatabaseId, ContainerId);
 
-            var query = "SELECT * FROM c";
-            var queryDefinition = new QueryDefinition(query);
-            var conversations = new List<conversations>();
-
-            var resultSetIterator = container.GetItemQueryIterator<conversations>(queryDefinition);
-
-            while (resultSetIterator.HasMoreResults)
+            var conversation = new ConversationModel    
             {
-                var currentResultSet = await resultSetIterator.ReadNextAsync();
-                conversations.AddRange(currentResultSet);
-            }
+                id= Guid.NewGuid().ToString(),
+                ConKey = Guid.NewGuid().ToString(),
+                Pages = pages,
+                Summaries = summaries,
+                DocUrl = filePath,
+                Conv = ""
+            };
 
-            return conversations;
+            var response = await container.CreateItemAsync(conversation);
         }
-        
-        public async Task<List<Student>> getstudentbyid(int id)
+
+
+
+
+
+
+       
+
+      /*  public async Task<List<Student>> getstudentbyid(int id)
         {
-            var container = _cosmosclient.GetContainer(DatabaseId, ContainerId);
+            var container = _cosmosClient.GetContainer(DatabaseId, ContainerId);
 
             var query = "SELECT * FROM c WHERE c.sno = @StudentId";
             var queryDefinition = new QueryDefinition(query).WithParameter("@StudentId", id);
@@ -76,8 +97,8 @@ namespace DocSumRepository
             }
 
             return students;
-        }
-        */
+        }*/
+
     }
 
 }

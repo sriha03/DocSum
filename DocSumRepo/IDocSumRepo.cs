@@ -11,6 +11,7 @@ namespace DocSumRepository
     {
         public string SaveDocument(byte[] documentData, string fileName);
         public void ParseDocument(string filePath);
+        public Task StoreConversation(List<string> pages, List<string> summaries,string filePath);
     }
 
 }
