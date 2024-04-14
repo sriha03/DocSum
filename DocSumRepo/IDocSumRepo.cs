@@ -11,7 +11,9 @@ namespace DocSumRepository
     {
         public string SaveDocument(byte[] documentData, string fileName);
         public void ParseDocument(string filePath);
-        public Task StoreConversation(List<string> pages, List<string> summaries,string filePath);
+        public Task<ConversationModel> StoreConversation(List<string> pages, List<string> summaries,string filePath);
+        public Task<ConversationModel> GetConversation(string id);
+        public Task<ConversationModel> UpdateConversation(string id, ConversationModel conversation);
     }
 
 }

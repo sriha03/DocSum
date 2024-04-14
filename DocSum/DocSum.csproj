@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\common\common.csproj" />
     <ProjectReference Include="..\DocSumRepo\DocSumRepository.csproj" />
     <ProjectReference Include="..\DocSumServices\DocSumServices.csproj" />
   </ItemGroup>
