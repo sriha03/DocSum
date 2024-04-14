@@ -88,7 +88,7 @@ namespace DocSumServices
 
         }
 
-        public async Task<List<string>> ProcessDocument(byte[] documentData, string fileName)
+        public async Task<ConversationModel> ProcessDocument(byte[] documentData, string fileName)
         {
             // Here, you can implement logic to summarize the document
             // For simplicity, we'll just save the document as it is
@@ -96,12 +96,12 @@ namespace DocSumServices
 
             // Parse and summarize the document
             List<string> summary;
-            summary = await SummarizeDocument(filePath);
+            var conv = await SummarizeDocument(filePath);
 
-            return summary;
+            return conv;
         }
 
-        public async Task<List<string>> SummarizeDocument(string filePath)
+        public async Task<ConversationModel> SummarizeDocument(string filePath)
         {
             var credential = new AzureKeyCredential("ef1d66e6592f4cac8079fbcef9c0bd4b");
             var endpoint = new Uri("https://textanalyticssum.cognitiveservices.azure.com/");
@@ -162,9 +162,9 @@ namespace DocSumServices
                     }
                 }
             }
-            await _docSumRepo.StoreConversation(pages, summaries,filePath);
+            var conv = await _docSumRepo.StoreConversation(pages, summaries,filePath);
 
-            return summaries;
+            return conv;
         }
 
 
@@ -193,6 +193,22 @@ namespace DocSumServices
             // Close PDF document
             pdfDocument.Close();
             return pages;
+        }
+
+
+        public async Task<ConversationModel> GetConversation(string id)
+        {
+            return await _docSumRepo.GetConversation(id);
+        }
+
+        public async Task<ConversationModel> UpdateConversation(string id, string userprompt)
+        {
+            var botreply = "hiiii";
+            ConversationModel conversation = await _docSumRepo.GetConversation(id);
+            // Append the new user prompt and bot reply to the conversation.conv string
+            conversation.Conv += $"UserPrompt: {userprompt};BotReply: {botreply};";
+            await _docSumRepo.UpdateConversation(id, conversation);
+            return conversation;
         }
     }
 }
